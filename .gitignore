@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.env
+.venv
+venv/
+ENV/
+*.sqlite3
+*.db
+.pytest_cache/
+*.log
+
+# Node / React
+node_modules/
+dist/
+build/
+.npm
+*.tsbuildinfo
+
+# OS
+.DS_Store
+Thumbs.db

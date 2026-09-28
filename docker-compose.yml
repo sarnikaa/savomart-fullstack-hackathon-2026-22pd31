@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    container_name: savomart_postgis
+    restart: always
+    environment:
+      POSTGRES_USER: savomart
+      POSTGRES_PASSWORD: savomart_secret
+      POSTGRES_DB: savomart_sitescout
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./schema.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U savomart -d savomart_sitescout"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: savomart_backend
+    restart: always
+    environment:
+      DATABASE_URL: postgresql://savomart:savomart_secret@db:5432/savomart_sitescout
+      SAVO_STORES_API_URL: https://internal-service.savomart.in/bridge/api/store/list?is_operational=True
+      SAVO_CRON_TOKEN: savo-bridge-cron-secret
+      LLM_PROVIDER: local
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:
