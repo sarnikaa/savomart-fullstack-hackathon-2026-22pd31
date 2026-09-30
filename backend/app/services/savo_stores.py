@@ -90,31 +90,60 @@ async def sync_savomart_stores(db: Session) -> Tuple[List[Dict[str, Any]], str]:
     """
     headers = {"X-cron-token": settings.SAVO_CRON_TOKEN}
     try:
-        async with httpx.AsyncClient(timeout=4.0) as client:
-            res = await client.post(settings.SAVO_STORES_API_URL, headers=headers, json={})
+        async with httpx.AsyncClient(timeout=8.0) as client:
+            res = await client.get(settings.SAVO_STORES_API_URL, headers=headers)
             if res.status_code == 200:
                 data = res.json()
-                stores_data = data if isinstance(data, list) else data.get("stores", [])
-                if stores_data:
-                    # Sync to DB
-                    for item in stores_data:
-                        existing = db.query(SavomartStore).filter(SavomartStore.store_code == item.get("store_code")).first()
+                raw_stores = data.get("data", []) if isinstance(data, dict) else (data if isinstance(data, list) else [])
+                if raw_stores:
+                    parsed_stores = []
+                    for item in raw_stores:
+                        coords = item.get("geocoordinates") or {}
+                        lat = coords.get("latitude") if coords.get("latitude") is not None else item.get("lat")
+                        lon = coords.get("longitude") if coords.get("longitude") is not None else item.get("lon")
+                        if lat is None or lon is None:
+                            continue
+
+                        store_code = item.get("store_code")
+                        name = item.get("name")
+                        address = item.get("address")
+                        zone = item.get("zone", "")
+                        is_operational = bool(item.get("is_operational", True))
+
+                        # Save or update store
+                        existing = db.query(SavomartStore).filter(SavomartStore.store_code == store_code).first()
                         if not existing:
                             store = SavomartStore(
-                                store_code=item.get("store_code"),
-                                name=item.get("name"),
-                                address=item.get("address"),
-                                lat=float(item.get("lat")),
-                                lon=float(item.get("lon")),
-                                is_operational=bool(item.get("is_operational", True)),
-                                opened_at=item.get("opened_at"),
+                                store_code=store_code,
+                                name=name,
+                                address=address,
+                                lat=float(lat),
+                                lon=float(lon),
+                                is_operational=is_operational,
                                 source="live_api"
                             )
                             db.add(store)
+                        else:
+                            existing.lat = float(lat)
+                            existing.lon = float(lon)
+                            existing.is_operational = is_operational
+                            existing.source = "live_api"
+
+                        parsed_stores.append({
+                            "store_code": store_code,
+                            "name": name,
+                            "address": address,
+                            "lat": float(lat),
+                            "lon": float(lon),
+                            "is_operational": is_operational,
+                            "zone": zone,
+                            "source": "live_api"
+                        })
+
                     db.commit()
-                    return stores_data, "live_api"
+                    return parsed_stores, "live_api"
     except Exception as e:
-        logger.info(f"Savomart internal stores API unreachable ({e}). Using sample fallback dataset.")
+        logger.info(f"Savomart internal stores API error ({e}). Using sample fallback dataset.")
 
     # Fallback to local sample stores
     for item in SEED_SAVO_STORES:
