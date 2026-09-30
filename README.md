@@ -31,8 +31,8 @@ Every new Savomart store starts with a critical location decision. Traditionally
 ### 1-Click Launch (Runs Both Backend & Frontend)
 ```bash
 # Clone the repository
-git clone https://github.com/sarnikaa/SAVOmart-hackathon.git
-cd SAVOmart-hackathon
+git clone https://github.com/sarnikaa/savomart-fullstack-hackathon-2026-22pd31.git
+cd savomart-fullstack-hackathon-2026-22pd31
 
 # Run master data ingestion (Pincodes, OSM POIs, H3 Grid, Seed Personas)
 python backend/ingest/run_all_ingestion.py
@@ -223,4 +223,4 @@ npm run build
 
 - **Demo Video (3 to 5 Minutes):** [Google Drive Video Demo Placeholder - Anyone with the link can view](https://drive.google.com/file/d/savomart-sitescout-demo/view?usp=sharing)
 - **AI Session History:** Located in [`ai-sessions/session-log.md`](ai-sessions/session-log.md).
-- **Repository Name:** `SAVOmart-hackathon` with `mohammed.hafiz@ebono.com` invited as collaborator.
+- **Repository Name:** `savomart-fullstack-hackathon-2026-22pd31` with `mohammed.hafiz@ebono.com` invited as collaborator.
