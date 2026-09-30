@@ -221,6 +221,6 @@ npm run build
 
 ## 11. Video Demo Link & Deliverables
 
-- **Demo Video (3 to 5 Minutes):** [Google Drive Video Demo Placeholder - Anyone with the link can view](https://drive.google.com/file/d/savomart-sitescout-demo/view?usp=sharing)
+- **Demo Video (3 to 5 Minutes):** [Google Drive Video Demo Link](https://drive.google.com/drive/folders/1inJ2E0_lNJ_N35S3q_8mLmwDABUB8HbT?usp=sharing)
 - **AI Session History:** Located in [`ai-sessions/session-log.md`](ai-sessions/session-log.md).
 - **Repository Name:** `savomart-fullstack-hackathon-2026-22pd31` with `mohammed.hafiz@ebono.com` invited as collaborator.
